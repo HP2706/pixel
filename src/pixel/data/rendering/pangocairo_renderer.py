@@ -10,6 +10,7 @@ import gi
 import manimpango
 import numpy as np
 from fontTools import ttLib
+import platform
 
 gi.require_version("Pango", "1.0")
 gi.require_version("PangoCairo", "1.0")
@@ -17,6 +18,10 @@ from gi.repository import Pango, PangoCairo
 
 from ...utils.defaults import *
 from .rendering_utils import Encoding, TextRenderingMixin
+
+if platform.system() == "Darwin":
+    os.environ["PANGOCAIRO_BACKEND"] = "fontconfig"
+    os.environ["FONTCONFIG_FILE"] = "/opt/homebrew/etc/fonts/pixel.conf"
 
 logger = logging.getLogger(__name__)
 

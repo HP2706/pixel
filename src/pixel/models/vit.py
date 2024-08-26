@@ -26,8 +26,8 @@ from torch import nn
 from transformers import ViTPreTrainedModel
 from transformers.modeling_outputs import BaseModelOutput, BaseModelOutputWithPooling
 from transformers.modeling_utils import find_pruneable_heads_and_indices, prune_linear_layer
-from transformers.models.vit.modeling_vit import PatchEmbeddings, ViTIntermediate, ViTOutput, ViTPooler, ViTSelfOutput
-
+from transformers.models.vit.modeling_vit import ViTIntermediate, ViTOutput, ViTPooler, ViTSelfOutput
+from transformers.models.vit.modeling_vit import ViTPatchEmbeddings as ViTPatchEmbeddings
 logger = logging.getLogger(__name__)
 
 
@@ -231,12 +231,8 @@ class ViTEmbeddings(nn.Module):
 
         self.cls_token = nn.Parameter(torch.zeros(1, 1, config.hidden_size))
         self.mask_token = nn.Parameter(torch.zeros(1, 1, config.hidden_size)) if use_mask_token else None
-        self.patch_embeddings = PatchEmbeddings(
-            image_size=config.image_size,
-            patch_size=config.patch_size,
-            num_channels=config.num_channels,
-            embed_dim=config.hidden_size,
-        )
+        self.patch_embeddings = ViTPatchEmbeddings(config)
+
         self.num_patches = self.patch_embeddings.num_patches
         self.position_embeddings = nn.Parameter(torch.zeros(1, self.num_patches + 1, config.hidden_size))
         self.dropout = nn.Dropout(config.hidden_dropout_prob)

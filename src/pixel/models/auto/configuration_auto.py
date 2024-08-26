@@ -25,7 +25,7 @@ from typing import List, Union
 
 from transformers.configuration_utils import PretrainedConfig
 from transformers.dynamic_module_utils import get_class_from_dynamic_module
-from transformers.file_utils import CONFIG_NAME
+from transformers.utils import CONFIG_NAME
 from transformers.utils import logging
 
 logger = logging.get_logger(__name__)

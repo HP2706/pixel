@@ -9,17 +9,20 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 import numpy as np
 from requests import HTTPError
 from transformers.dynamic_module_utils import custom_object_save
-from transformers.file_utils import (
-    EntryNotFoundError,
+from transformers.utils.hub import (
     PushToHubMixin,
+    is_offline_mode,
+    is_remote_url
+)
+from transformers.utils.doc import copy_func
+
+from huggingface_hub import hf_hub_url, hf_hub_download
+from huggingface_hub.utils import (
+    EntryNotFoundError,
     RepositoryNotFoundError,
     RevisionNotFoundError,
-    cached_path,
-    copy_func,
-    hf_bucket_url,
-    is_offline_mode,
-    is_remote_url,
 )
+
 
 logger = logging.getLogger(__name__)
 
@@ -193,7 +196,7 @@ class TextRenderingMixin(PushToHubMixin):
         self.copy_font_file_to_save_dir(save_directory)
 
         if push_to_hub:
-            url = self._push_to_hub(repo, commit_message=commit_message)
+            url = self.push_to_hub(repo_id=repo, commit_message=commit_message)
             logger.info(f"Text renderer pushed to the hub in this commit: {url}")
 
     @classmethod
@@ -234,20 +237,22 @@ class TextRenderingMixin(PushToHubMixin):
         elif os.path.isfile(pretrained_model_name_or_path) or is_remote_url(pretrained_model_name_or_path):
             text_renderer_file = pretrained_model_name_or_path
         else:
-            text_renderer_file = hf_bucket_url(
-                pretrained_model_name_or_path, filename=TEXT_RENDERER_NAME, revision=revision, mirror=None
+            text_renderer_file = hf_hub_url(
+                pretrained_model_name_or_path, filename=TEXT_RENDERER_NAME, revision=revision,
             )
 
         try:
             # Load from URL or cache if already cached
-            resolved_text_renderer_file = cached_path(
-                text_renderer_file,
+            resolved_text_renderer_file = hf_hub_download(
+                repo_id=pretrained_model_name_or_path,
+                filename=TEXT_RENDERER_NAME,
+                revision=revision,
                 cache_dir=cache_dir,
                 force_download=force_download,
                 proxies=proxies,
                 resume_download=resume_download,
+                token=use_auth_token,
                 local_files_only=local_files_only,
-                use_auth_token=use_auth_token,
                 user_agent=user_agent,
             )
 
@@ -347,20 +352,22 @@ class TextRenderingMixin(PushToHubMixin):
         elif os.path.isfile(pretrained_model_name_or_path) or is_remote_url(pretrained_model_name_or_path):
             font_file = pretrained_model_name_or_path
         else:
-            font_file = hf_bucket_url(
-                pretrained_model_name_or_path, filename=font_file_name, revision=revision, mirror=None
+            font_file = hf_hub_url(
+                pretrained_model_name_or_path, filename=font_file_name, revision=revision,
             )
 
         try:
             # Load from URL or cache if already cached
-            resolved_font_file = cached_path(
-                font_file,
+            resolved_font_file = hf_hub_download(
+                repo_id=pretrained_model_name_or_path,
+                filename=font_file_name,
+                revision=revision,
                 cache_dir=cache_dir,
                 force_download=force_download,
                 proxies=proxies,
                 resume_download=resume_download,
+                token=use_auth_token,
                 local_files_only=local_files_only,
-                use_auth_token=use_auth_token,
                 user_agent=user_agent,
             )
 
